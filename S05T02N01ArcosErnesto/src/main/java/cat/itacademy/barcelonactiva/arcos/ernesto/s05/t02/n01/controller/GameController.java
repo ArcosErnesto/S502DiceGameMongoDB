@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.controller;
 
+import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.dto.GameDTO;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.dto.PlayerDTO;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity.PlayerEntity;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.service.PlayerService;
@@ -32,5 +33,11 @@ public class GameController {
     @GetMapping("")
     public ResponseEntity<List<PlayerEntity>> findAll() {
         return ResponseEntity.ok().body(playerService.getAll());
+    }
+
+    @PostMapping("/{id}/games")
+    public ResponseEntity<GameDTO> play(@PathVariable("id") String id){
+        GameDTO newGame = playerService.playGame(id);
+        return new ResponseEntity<>(newGame, HttpStatus.OK);
     }
 }
