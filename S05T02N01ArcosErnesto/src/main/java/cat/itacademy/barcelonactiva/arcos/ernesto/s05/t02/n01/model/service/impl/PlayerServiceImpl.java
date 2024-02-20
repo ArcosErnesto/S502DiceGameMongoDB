@@ -4,6 +4,7 @@ import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.dto.GameDTO;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.dto.PlayerDTO;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity.GameEntity;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity.PlayerEntity;
+import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.exceptions.GameNotFoundException;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.exceptions.PlayerAlreadyExistsException;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.exceptions.PlayerNotFoundException;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.exceptions.PlayerUpdateException;
@@ -13,8 +14,10 @@ import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.service.Play
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
@@ -104,6 +107,42 @@ public class PlayerServiceImpl implements PlayerService {
         }
         player.setSuccessRate(successRate);
         return player;
+    }
+
+    public void resetSuccessRate(String id) {
+        Optional<PlayerEntity> playerOptional = playerRepository.findById(id);
+        if (playerOptional.isEmpty()) {
+            throw new PlayerNotFoundException("Jugador no encontrado con id " + id);
+        } else {
+            PlayerEntity player = playerOptional.get();
+            player.setSuccessRate(null);
+            playerRepository.save(player);
+        }
+    }
+
+    @Override
+    public List<PlayerDTO> getRanking() {
+        List<PlayerDTO> ranking = playerRepository.findAll().stream()
+                .map(this::playerToDTO)
+                .filter(playerDTO -> playerDTO.getSuccessRate() != null)
+                .sorted(Comparator.comparing(PlayerDTO::getSuccessRate).reversed())
+                .collect(Collectors.toList());
+        if (ranking.isEmpty()) {
+            throw new GameNotFoundException("No hay partidas registradas.");
+        }
+        return ranking;
+    }
+
+    @Override
+    public PlayerDTO getWinner() {
+        List<PlayerDTO> ranking = getRanking();
+        return ranking.get(0);
+    }
+
+    @Override
+    public PlayerDTO getLoser() {
+        List<PlayerDTO> ranking = getRanking();
+        return ranking.get(ranking.size() - 1);
     }
 
     public PlayerEntity playerToDomain(PlayerDTO playerDTO) {

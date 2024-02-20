@@ -3,6 +3,7 @@ package cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.service.imp
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.dto.GameDTO;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity.GameEntity;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity.PlayerEntity;
+import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.exceptions.GameNotFoundException;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.exceptions.PlayerNotFoundException;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.repository.GameRepository;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.repository.PlayerRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class GameServiceImpl implements GameService {
@@ -40,13 +42,28 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<GameEntity> getOnePlayerGames(long id) {
-        return null;
+    public List<GameEntity> getOnePlayerGames(String id) {
+        Optional<PlayerEntity> updatedPlayer = playerRepository.findById(id);
+        if(updatedPlayer.isPresent()){
+            PlayerEntity player = updatedPlayer.get();
+            List<GameEntity> games = gameRepository.findAll();
+            return games.stream()
+                    .filter(game -> game.getPlayerEntity().getId().equalsIgnoreCase(player.getId()))
+                    .collect(Collectors.toList());
+        } else{
+            throw new PlayerNotFoundException("Jugador no encontrado con el ID: " + id);
+        }
     }
 
     @Override
-    public String deletePlayerGames(long id) {
-        return null;
+    public String deletePlayerGames(String id) {
+        List<GameEntity> playerGames = getOnePlayerGames(id);
+        if (playerGames.isEmpty()) {
+            throw new GameNotFoundException("No hay partidas registradas en el jugador con ID: " + id);
+        }
+        String playerName = playerGames.get(0).getPlayerEntity().getPlayerName();
+        playerGames.forEach(gameEntity -> gameRepository.delete(gameEntity));
+        return "Borradas con éxito las partidas del jugador "+playerName;
     }
 
     @Override

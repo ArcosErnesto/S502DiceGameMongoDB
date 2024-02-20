@@ -11,4 +11,10 @@ public interface PlayerService {
     PlayerDTO updatePlayer(String id, PlayerDTO player);
     List<PlayerEntity>getAll();
     GameDTO playGame(String id);
+    void resetSuccessRate(String id);
+    List<PlayerDTO> getRanking();
+    PlayerDTO getWinner();
+    PlayerDTO getLoser();
+
+
 }
