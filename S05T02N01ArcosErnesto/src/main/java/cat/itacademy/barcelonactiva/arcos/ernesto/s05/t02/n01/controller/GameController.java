@@ -51,6 +51,7 @@ public class GameController {
         return ResponseEntity.ok(playerGames);
     }
 
+    @DeleteMapping("/{id}/games")
     public ResponseEntity<String>deletePlayerGames(@PathVariable String id){
         String msg = gameService.deletePlayerGames(id);
         playerService.resetSuccessRate(id);
