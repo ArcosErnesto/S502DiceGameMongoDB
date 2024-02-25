@@ -1,9 +1,11 @@
 package cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -21,11 +23,13 @@ public class PlayerEntity {
     private String id;
 
     @JsonProperty("playerName")
+    @Indexed(unique = true)
     private String playerName;
 
     @JsonProperty("successRate")
     private Double successRate;
 
+    @NotNull
     @JsonProperty("creationDate")
     private Date creationDate;
 
