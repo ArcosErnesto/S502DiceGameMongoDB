@@ -23,7 +23,8 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private PlayerRepository playerRepository;
     private DiceRoll diceRoll = new DiceRoll();
-    private GameDTO newGame() {
+    public GameDTO newGame() {
+        diceRoll = new DiceRoll();
         diceRoll.roll();
         return new GameDTO(diceRoll.getDice1(), diceRoll.getDice2());
     }
