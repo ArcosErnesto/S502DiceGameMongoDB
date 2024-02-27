@@ -16,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -23,18 +25,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
     @Override
     public JwtAuthenticationResponse signup(SignUpRequest request) {
-        try {
-            var user = User.builder().firstName(request.getFirstName()).lastName(request.getLastName())
-                    .email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
-                    .role(Role.USER).build();
-            userRepository.save(user);
-            var jwt = jwtService.generateToken(user);
-            return JwtAuthenticationResponse.builder().token(jwt).build();
-        } catch (Exception e){
+        Optional<User> isPresent = userRepository.findByEmail(request.getEmail());
+        if (isPresent.isPresent()) {
             throw new UserAlreadyExistException("Email ya registrado.");
         }
+
+        var user = User.builder().firstName(request.getFirstName()).lastName(request.getLastName())
+                .email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER).build();
+        userRepository.save(user);
+        var jwt = jwtService.generateToken(user);
+        return JwtAuthenticationResponse.builder().token(jwt).build();
+
     }
 
     @Override
@@ -46,7 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .orElseThrow(() -> new IllegalArgumentException("Email o contraseña inválidos."));
             var jwt = jwtService.generateToken(user);
             return JwtAuthenticationResponse.builder().token(jwt).build();
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new BadCredentialsException("Usuario o contraseña no válida.");
         }
     }
