@@ -3,7 +3,6 @@ package cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.repository;
 import cat.itacademy.barcelonactiva.arcos.ernesto.s05.t02.n01.model.entity.PlayerEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-@Transactional
 public class PlayerRepositoryTest {
     @Autowired
     private PlayerRepository playerRepository;
@@ -58,7 +56,7 @@ public class PlayerRepositoryTest {
     @Test
     void save_should_insert_new_superHero() {
         PlayerEntity newPlayer = PlayerEntity.builder()
-                .playerName("Eugenio")
+                .playerName("Mairena")
                 .creationDate(new Date())
                 .build();
 
